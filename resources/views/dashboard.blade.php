@@ -42,4 +42,15 @@
             </div>
         </div>
     </main>
+    
+<script>
+   $(document).ready(function(){
+    $.ajax({ 
+        url: "{{ url('/getDashboardAjax') }}",
+        success: function(){
+           //alert("done");
+        }
+    });
+});
+</script>
 @include('components/footer')
