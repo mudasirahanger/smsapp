@@ -65,6 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/SendWhatsapp', [SendSMSController::class, 'whatsapp'])->name('SendWhatsapp');
 
     Route::get('/Customer', [SendSMSController::class, 'customer'])->name('Customer');
+    Route::post('/addCustomer',[SendSMSController::class, 'addCustomer'])->name('addCustomer');
 
     Route::get('/Settings', [SendSMSController::class, 'settings'])->name('Settings');
 

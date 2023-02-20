@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\libraries\textlocal\Textlocal;
 use App\Models\Sms;
 
@@ -37,8 +38,38 @@ class SendSMSController extends Controller
     public function customer()
     {
        $data = array();
+       $Sms = new Sms;
+       $user_id =  auth()->id();  
+       $total = $Sms->getCustomers($user_id);
        $data['title'] = 'Customer';
+       $data['message'] = 'Total Customers : ' . count($total);
        return view('customer', $data);
+    }
+
+    public function addCustomer(Request $request)
+    {
+        $Sms = new Sms;
+        $user_id =  auth()->id();  
+        $dataarray = array();         
+        $request->validate([
+        'csvfile' => 'required',        
+        ]);
+        if ($request->file('csvfile')) {
+            $file = $request->file('csvfile');
+            $name = $file->getClientOriginalName();
+            $fileName = time().'_'.$name;
+            $request->file('csvfile')->storeAs('public/uploads',$fileName,'local');    
+            $getpath = Storage::disk('local')->path('public/uploads/'.$fileName);  
+            $dataarray = $this->csvToArray($getpath);      
+            for ($i = 0; $i < count($dataarray); $i ++)
+            {
+                $Sms->addCustomers($user_id,$dataarray[$i]);
+            }
+            return redirect('Customer');
+        } else {    
+            return redirect('Customer');           
+        }
+        
     }
 
     public function settings() {
@@ -158,5 +189,27 @@ class SendSMSController extends Controller
         // return $response;
 
     }
+
+   public function csvToArray($filename = '', $delimiter = ',')
+        {
+            if (!file_exists($filename) || !is_readable($filename))
+                return false;
+
+            $header = null;
+            $data = array();
+            if (($handle = fopen($filename, 'r')) !== false)
+            {
+                while (($row = fgetcsv($handle, 100000, $delimiter)) !== false)
+                {
+                    if (!$header)
+                        $header = $row;
+                    else
+                        $data[] = array_combine($header, $row);
+                }
+                fclose($handle);
+            }
+
+            return $data;
+        }
 
 }

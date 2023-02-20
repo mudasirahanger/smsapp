@@ -10,7 +10,6 @@ use Carbon\Carbon;
 class Sms extends Model
 {
     use HasFactory;
-    
     protected $table_settings = 'settings';
     
 
@@ -56,6 +55,37 @@ class Sms extends Model
             return false;
         }
     }
+    
 
+    public function addCustomers($user_id,$data){
+
+        $customer =  DB::table('customers')->insert([
+            'fname' => $data['firstname'],
+            'lname' => $data['lastname'],
+            'mobile' => $data['mobile'],
+            'user_id' => $user_id,
+            'date_added' => Carbon::now()
+        ]);
+
+        if(($customer)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getCustomers($user_id){
+        $customers = DB::table('customers')
+        ->where('user_id',$user_id)
+        ->orderBy('date_added', 'desc')
+        // ->limit(5)
+         ->get();
+
+        if(!empty($customers)){
+            return $customers->toArray();
+        } else {
+            return [];
+        }
+    }
 
 }
