@@ -57,12 +57,13 @@ class Sms extends Model
     }
     
 
-    public function addCustomers($user_id,$data){
+    public function addCustomers($user_id,$group,$data){
 
         $customer =  DB::table('customers')->insert([
             'fname' => $data['firstname'],
             'lname' => $data['lastname'],
             'mobile' => $data['mobile'],
+            'group_id' => (int)$group,
             'user_id' => $user_id,
             'date_added' => Carbon::now()
         ]);
@@ -83,6 +84,33 @@ class Sms extends Model
 
         if(!empty($customers)){
             return $customers->toArray();
+        } else {
+            return [];
+        }
+    }
+
+    public function addCustomersGroups($user_id,$groupname){
+
+        $customer_group =  DB::table('customers_groups')->insert([
+            'name' => $groupname,
+            'user_id' => $user_id,
+            'date_added' => Carbon::now()
+        ]);
+
+        if(($customer_group)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getGroups($user_id){
+        $groups = DB::table('customers_groups')
+        ->where('user_id',$user_id)
+         ->get();
+
+        if(!empty($groups)){
+            return $groups->toArray();
         } else {
             return [];
         }

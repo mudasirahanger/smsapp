@@ -11,21 +11,25 @@
                         <div class="col mt-3 p-3">
                           <form>
                           <div class="mb-3">
-                            <label for="exampleFormControlInput1" class="form-label">Phone Number</label>
-                            <input type="number" class="form-control" min="11" id="exampleFormControlInput1" placeholder="9199999999">
+                            <label for="exampleFormControlInput1" class="form-label">Customer Group </label> 
+                             <select name="customer_group" class="form-control">
+                             @foreach($groups as $group)
+                             <option value="{{ $group->customers_groups_id }}">{{ $group->name }}</option>
+                             @endforeach
+                             </select>
                             </div>
                             <div class="mb-3">
                             <label for="exampleFormControlInput1" class="form-label">Select Template</label>
                             <select class="form-select" aria-label="Default select example">
-                                <option selected>Select</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                                </select>
+                            <option selected>Select</option>
+                            @foreach($templates as $template)
+                             <option value="{{ $template->settings_id }}">{{ $template->name }}</option>
+                             @endforeach
+                            </select>
                             </div>
                             <div class="mb-3">
-                            <label for="exampleFormControlTextarea1" class="form-label">Message</label>
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                            <!-- <label for="exampleFormControlTextarea1" class="form-label">Message</label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea> -->
                             </div>
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary mb-3">Send</button>

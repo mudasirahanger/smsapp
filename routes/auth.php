@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/AddSettings',[SendSMSController::class,'AddSettings'])->name('AddSettings');
     Route::post('/getsettingsAjaxSMS',[SendSMSController::class,'getsettingsAjaxSMS'])->name('getsettingsAjaxSMS');
     Route::post('/deleteSettings',[SendSMSController::class,'deleteSettings'])->name('deleteSettings');
-    
+    Route::get('/customerGroups',[SendSMSController::class,'customerGroups'])->name('customerGroups');
+    Route::post('/AddcustomerGroup',[SendSMSController::class,'AddcustomerGroup'])->name('AddcustomerGroup');
 });
 

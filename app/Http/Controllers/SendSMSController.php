@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Session;
 use App\libraries\textlocal\Textlocal;
 use App\Models\Sms;
 
@@ -22,7 +23,13 @@ class SendSMSController extends Controller
     public function create()
     {
        $data = array();
-       $data['title'] = 'SMS';
+       $Sms = new Sms;
+       $user_id =  auth()->id();  
+       $data['title'] = 'Bulk SMS';
+
+       $data['templates'] =  $Sms->getAllSettings($user_id,3);
+       $data['groups'] =  $Sms->getGroups($user_id);
+
        return view('sms', $data);
     }
 
@@ -43,8 +50,40 @@ class SendSMSController extends Controller
        $total = $Sms->getCustomers($user_id);
        $data['title'] = 'Customer';
        $data['message'] = 'Total Customers : ' . count($total);
+       $data['groups'] =  $Sms->getGroups($user_id);
        return view('customer', $data);
     }
+
+    public function customerGroups()
+    {
+       $data = array();
+       $Sms = new Sms;
+       $user_id =  auth()->id();  
+       $total = $Sms->getCustomers($user_id);
+       $data['title'] = 'Customer Groups';
+       return view('customergroups', $data);
+    }
+    
+    public function AddcustomerGroup(Request $request)
+    {
+       $data = array();
+       $Sms = new Sms;
+       $user_id =  auth()->id();  
+       $request->validate([
+        'csvGroupName' => 'required',  
+        ]);
+        if ($request->input('csvGroupName')) {
+            $groupname = $request->input('csvGroupName');
+            $group = $Sms->addCustomersGroups($user_id,$groupname);
+            if($group){
+            Session::flash('message', 'Group Created Successfully !'); 
+            return redirect('customerGroups');
+            }
+        } else {
+        return redirect('customerGroups'); 
+        }
+    }
+
 
     public function addCustomer(Request $request)
     {
@@ -52,10 +91,12 @@ class SendSMSController extends Controller
         $user_id =  auth()->id();  
         $dataarray = array();         
         $request->validate([
+        'csvGroup' => 'required',
         'csvfile' => 'required',        
         ]);
         if ($request->file('csvfile')) {
             $file = $request->file('csvfile');
+            $group = $request->input('csvGroup');
             $name = $file->getClientOriginalName();
             $fileName = time().'_'.$name;
             $request->file('csvfile')->storeAs('public/uploads',$fileName,'local');    
@@ -63,8 +104,9 @@ class SendSMSController extends Controller
             $dataarray = $this->csvToArray($getpath);      
             for ($i = 0; $i < count($dataarray); $i ++)
             {
-                $Sms->addCustomers($user_id,$dataarray[$i]);
+                $Sms->addCustomers($user_id,$group,$dataarray[$i]);
             }
+            Session::flash('success', 'Customer Created Successfully !');
             return redirect('Customer');
         } else {    
             return redirect('Customer');           
