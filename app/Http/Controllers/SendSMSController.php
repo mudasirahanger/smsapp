@@ -125,7 +125,16 @@ class SendSMSController extends Controller
     }
 
     public function getDashboardAjax(){
-        return '0';
+        $Sms = new Sms;
+        $user_id =  auth()->id();
+        $json = array();
+        $inqueue =  $Sms->getSMSQueue($user_id);
+        $customers = $Sms->getCustomers($user_id);
+        $json['newsms'] = count($inqueue);
+        $json['inqueue'] = count($inqueue);
+        $json['customers'] = count($customers);
+     
+       echo json_encode($json);
     }
     
     public function AddSettings(Request $request){
@@ -242,17 +251,20 @@ class SendSMSController extends Controller
         }
          for($i = 0; $i <= count($customers); $i ++){
             if(!empty($customers[$i]->mobile)){
-           // $numbers[] =  $customers[$i]->mobile;
+                if($customers[$i]->sms_status == 'pending'){
+                $numbers[] =  $customers[$i]->mobile;
+                $Sms->writeCustomerSMSLog($user_id,$customers[$i]->mobile,'success');
+                }
             }
          }
 
         // Message details
-        $numbers = array(919906745021);
+        //$numbers = array(919906745021);
         $sender = urlencode('399582');
         $message = "Dear%20Students.%nUpgrade%20your%20Management/Coding%20Skills%20with%20Online%20MBA%20or%20MCA%20program%20from%20NAAC%20A%2B%20Universities.%20Call%409818892457%nBigEdge%20Consultant%20Pvt.Ltd.";
         $numbers = implode(',', $numbers);
 
-	 $data = array('apikey' => $apiKey, 'numbers' => $numbers, "sender" => $sender, "message" => $message,"test" => 'true');   
+	 $data = array('apikey' => $apiKey, 'numbers' => $numbers, "sender" => $sender, "message" => $message);   
      $resp =  $this->CurlSMS($URL,$data);
      if($resp){
      $Sms->writesendSMSLog($user_id,$group_id,$template_id,$resp['status'],$resp['balance']);

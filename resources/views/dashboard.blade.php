@@ -15,7 +15,7 @@
                     <div class="row">
                                 <div class="col-lg-3 col-6">
                                         <div class="text-bg-info p-4 text-center shadow-lg rounded">
-                                                <h3>0</h3>
+                                                <h3 id="newsms">0</h3>
                                                 <p>New SMS</p>
                                         </div>
                                 </div>
@@ -27,13 +27,13 @@
                                 </div>
                             <div class="col-lg-3 col-6">
                             <div class="text-bg-info p-4 text-center shadow-lg rounded">
-                                                <h3>0</h3>
+                                                <h3 id="inqueue">0</h3>
                                                 <p>In Queue</p>
                                         </div>
                             </div>
                             <div class="col-lg-3 col-6">
                             <div class="text-bg-success p-4 text-center shadow-lg rounded">
-                                                <h3>0</h3>
+                                                <h3 id="customers">0</h3>
                                                 <p>Customers</p>
                                         </div>
                             </div>
@@ -47,8 +47,13 @@
    $(document).ready(function(){
     $.ajax({ 
         url: "{{ url('/getDashboardAjax') }}",
-        success: function(){
-           //alert("done");
+        success: function(json){
+           if(json){
+           jsondata = JSON.parse(json);
+           $('#newsms').html(jsondata.newsms);
+           $('#inqueue').html(jsondata.inqueue);
+           $('#customers').html(jsondata.customers);
+           }
         }
     });
 });

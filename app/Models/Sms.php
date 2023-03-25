@@ -181,4 +181,18 @@ class Sms extends Model
         }
     }
 
+    public function writeCustomerSMSLog($user_id,$mobile,$status){
+        $customer = DB::table('customers')
+        ->where('user_id', $user_id) 
+        ->where('mobile', $mobile) // find your user by their email
+        ->limit(1)  // optional - to ensure only one record is updated.
+        ->update(array('sms_status'=> $status,'sms_send_time' => Carbon::now()));  // update the record in the DB
+
+        if(($customer)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
