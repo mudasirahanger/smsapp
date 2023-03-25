@@ -9,10 +9,26 @@
                     <div class="row">
                         <h1>{{ $title }}</h1>
                         <div class="col mt-3 p-3">
-                          <form>
+                          <form method="POST" action="{{ route('send') }}" enctype="multipart/form-data" >
+                          @csrf
+                            @if ($message = Session::get('success'))
+                                <div class="alert alert-success">
+                                    <strong>{{ $message }}</strong>
+                                </div>
+                            @endif
+                            @if (count($errors) > 0)
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                           <div class="mb-3">
                             <label for="exampleFormControlInput1" class="form-label">Customer Group </label> 
-                             <select name="customer_group" class="form-control">
+                             <select name="customer_group_id" class="form-control">
+                             <option value='' selected>Select</option>
                              @foreach($groups as $group)
                              <option value="{{ $group->customers_groups_id }}">{{ $group->name }}</option>
                              @endforeach
@@ -20,17 +36,14 @@
                             </div>
                             <div class="mb-3">
                             <label for="exampleFormControlInput1" class="form-label">Select Template</label>
-                            <select class="form-select" aria-label="Default select example">
-                            <option selected>Select</option>
+                            <select class="form-select" name="template_id" aria-label="Default select example">
+                            <option value='' selected>Select</option>
                             @foreach($templates as $template)
                              <option value="{{ $template->settings_id }}">{{ $template->name }}</option>
                              @endforeach
                             </select>
                             </div>
-                            <div class="mb-3">
-                            <!-- <label for="exampleFormControlTextarea1" class="form-label">Message</label>
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea> -->
-                            </div>
+                          
                             <div class="mb-3">
                                 <button type="submit" class="btn btn-primary mb-3">Send</button>
                             </div>

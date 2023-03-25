@@ -200,36 +200,64 @@ class SendSMSController extends Controller
         }
     }
 
-    
-    
+    public function send(Request $request) {
+        $Sms = new Sms;
+        $user_id =  auth()->id(); 
+        $request->validate([
+            'customer_group_id' => 'required',
+            'template_id' => 'required',        
+            ]);      
+        if(!empty($request->input('customer_group_id'))){
+
+            $group_id = $request->input('customer_group_id');
+            $template_id = $request->input('template_id');
+            $sms = $Sms->sendSMS($user_id,$group_id,$template_id);
+            if($sms) {
+            Session::flash('success', 'SMS Send Successfully !');
+            } else {
+                Session::flash('success', 'something went wrong');
+            }
+            return redirect('SendSMS');
+            
+        } else {
+            Session::flash('success', 'something went wrong');
+            return redirect('SendSMS');
+        }
+    }
 
 
-
-
-    public function send() {
-
-        echo 'hello';
-        // // Account details
-        // $apiKey = urlencode('NGEzNzUzNDg0ODQ3NzE1OTc0NmY3NjUzNjM0OTM3Mzc=');
-        // // Message details
-        // $numbers = array(919818892457,919906745021);
-        // $sender = urlencode('TXTLCL');
-        // $message = rawurlencode('This is your message');
+    public function SMS_API_JOB() {
+        $Sms = new Sms;
+        $user_id =  auth()->id(); 
+        // Account details
+        $URL = 'https://api.textlocal.in/send/';
+        $apiKey = urlencode('NGEzNzUzNDg0ODQ3NzE1OTc0NmY3NjUzNjM0OTM3Mzc=');
         
-        // $numbers = implode(',', $numbers);
-        
-        // // Prepare data for POST request
-        // $data = array('apikey' => $apiKey, 'numbers' => $numbers, 'sender' => $sender, 'message' => $message);
-        // // Send the POST request with cURL
-        // $ch = curl_init('https://api.textlocal.in/send/');
-        // curl_setopt($ch, CURLOPT_POST, true);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // $response = curl_exec($ch);
-        // curl_close($ch);
-        // // Process your response here
-        // return $response;
+        $sms_queues = $Sms->getSMSQueue($user_id);
 
+        foreach($sms_queues as  $queue){
+          $group_id = $queue->group_id;
+          $template_id = $queue->template_id;
+          $customers = $Sms->getCustomersByGroups($user_id,$group_id);
+        }
+         for($i = 0; $i <= count($customers); $i ++){
+            if(!empty($customers[$i]->mobile)){
+           // $numbers[] =  $customers[$i]->mobile;
+            }
+         }
+
+        // Message details
+        $numbers = array(919906745021);
+        $sender = urlencode('399582');
+        $message = "Dear%20Students.%nUpgrade%20your%20Management/Coding%20Skills%20with%20Online%20MBA%20or%20MCA%20program%20from%20NAAC%20A%2B%20Universities.%20Call%409818892457%nBigEdge%20Consultant%20Pvt.Ltd.";
+        $numbers = implode(',', $numbers);
+
+	 $data = array('apikey' => $apiKey, 'numbers' => $numbers, "sender" => $sender, "message" => $message,"test" => 'true');   
+     $resp =  $this->CurlSMS($URL,$data);
+     if($resp){
+     $Sms->writesendSMSLog($user_id,$group_id,$template_id,$resp['status'],$resp['balance']);
+     echo $resp['status'];
+    }             
     }
 
    public function csvToArray($filename = '', $delimiter = ',')
@@ -253,5 +281,19 @@ class SendSMSController extends Controller
 
             return $data;
         }
+
+
+    public function CurlSMS($url, $data)
+    {
+       
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($response,true);
+    }
 
 }

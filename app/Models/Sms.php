@@ -64,8 +64,11 @@ class Sms extends Model
             'lname' => $data['lastname'],
             'mobile' => $data['mobile'],
             'group_id' => (int)$group,
-            'user_id' => $user_id,
-            'date_added' => Carbon::now()
+            'sms_status' => 'pending',
+            'sms_send'   => 0,
+            'user_id' => (int)$user_id,
+            'date_added' =>  Carbon::now(),
+            'sms_send_time' => Carbon::now()
         ]);
 
         if(($customer)){
@@ -78,6 +81,21 @@ class Sms extends Model
     public function getCustomers($user_id){
         $customers = DB::table('customers')
         ->where('user_id',$user_id)
+        ->orderBy('date_added', 'desc')
+        // ->limit(5)
+         ->get();
+
+        if(!empty($customers)){
+            return $customers->toArray();
+        } else {
+            return [];
+        }
+    }
+
+    public function getCustomersByGroups($user_id,$group_id){
+        $customers = DB::table('customers')
+        ->where('user_id',$user_id)
+        ->where('group_id',$group_id)
         ->orderBy('date_added', 'desc')
         // ->limit(5)
          ->get();
@@ -113,6 +131,53 @@ class Sms extends Model
             return $groups->toArray();
         } else {
             return [];
+        }
+    }
+
+    public function getSMSQueue($user_id){
+        $sms_queue = DB::table('sms_queue')
+        ->where('user_id',$user_id)
+         ->get();
+
+        if(!empty($sms_queue)){
+            return $sms_queue->toArray();
+        } else {
+            return [];
+        }
+    }
+
+
+    public function sendSMS($user_id,$group_id,$template_id){
+
+        $sms =  DB::table('sms_queue')->insert([
+            'group_id' => $group_id,
+            'template_id' => $template_id,
+            'user_id' => $user_id,
+            'date_added' => Carbon::now()
+        ]);
+
+        if(($sms)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function writesendSMSLog($user_id,$group_id,$template_id,$status,$total_cost){
+
+        $sms =  DB::table('sms_log')->insert([
+            'user_id' => $user_id,
+            'group_id' => $group_id,
+            'template_id' => $template_id,
+            'status' => $status,
+            'total_cost' => $total_cost,
+            'date_added' => Carbon::now()
+        ]);
+
+        if(($sms)){
+            return true;
+        } else {
+            return false;
         }
     }
 

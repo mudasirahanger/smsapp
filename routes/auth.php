@@ -77,5 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/deleteSettings',[SendSMSController::class,'deleteSettings'])->name('deleteSettings');
     Route::get('/customerGroups',[SendSMSController::class,'customerGroups'])->name('customerGroups');
     Route::post('/AddcustomerGroup',[SendSMSController::class,'AddcustomerGroup'])->name('AddcustomerGroup');
+    Route::get('/SMS_API_JOB',[SendSMSController::class,'SMS_API_JOB'])->name('SMS_API_JOB');
+    
 });
 
