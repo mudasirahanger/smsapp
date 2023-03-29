@@ -130,9 +130,11 @@ class SendSMSController extends Controller
         $json = array();
         $inqueue =  $Sms->getSMSQueue($user_id);
         $customers = $Sms->getCustomers($user_id);
+        $smsbal = $this->getTextLocalSMSBal();
         $json['newsms'] = count($inqueue);
         $json['inqueue'] = count($inqueue);
         $json['customers'] = count($customers);
+        $json['smsbal'] = $smsbal['balance']['sms'];
      
        echo json_encode($json);
     }
@@ -271,6 +273,15 @@ class SendSMSController extends Controller
      echo $resp['status'];
     }             
     }
+
+   public function getTextLocalSMSBal(){
+    $URL = 'https://api.textlocal.in/balance/';
+    $apiKey = urlencode('NGEzNzUzNDg0ODQ3NzE1OTc0NmY3NjUzNjM0OTM3Mzc=');
+
+    $data = array('apikey' => $apiKey);   
+    $resp =  $this->CurlSMS($URL,$data);
+    return $resp;
+   } 
 
    public function csvToArray($filename = '', $delimiter = ',')
         {

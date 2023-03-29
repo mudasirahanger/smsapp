@@ -37,7 +37,15 @@
                                                 <p>Customers</p>
                                         </div>
                             </div>
-                     </div>               
+                     </div>   
+                     <div class="row mt-3">
+                     <div class="col-lg-3 col-6">
+                            <div class="text-bg-warning p-4 text-center shadow-lg rounded">
+                                                <h3 id="smsbal">0</h3>
+                                                <p>SMS Balance</p>
+                                        </div>
+                            </div>
+                     </div>            
                 </div>
             </div>
         </div>
@@ -53,6 +61,7 @@
            $('#newsms').html(jsondata.newsms);
            $('#inqueue').html(jsondata.inqueue);
            $('#customers').html(jsondata.customers);
+           $('#smsbal').html(jsondata.smsbal);
            }
         }
     });
